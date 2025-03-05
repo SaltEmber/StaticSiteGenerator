@@ -25,22 +25,22 @@ class LeafNode(HTMLNode):
             return self.value
         return f"<{self.tag}{super().props_to_html()}>{self.value}</{self.tag}>"
 
-class ParentNode(HTMLNode):
-    def __init__(self, tag, children, props = None):
-        super().__init__(tag, children = children, props = props)
-    def to_html(self):
-        if not self.tag:
-            raise ValueError("Missing Tag")
-        if not self.children:
-            raise ValueError("Missing children")
-        '''
-            wrapper Tag
-            insert into wrapper tag all the children (to_html)
-            recurse
+# class ParentNode(HTMLNode):
+#     def __init__(self, tag, children, props = None):
+#         super().__init__(tag, children = children, props = props)
+#     def to_html(self):
+#         if not self.tag:
+#             raise ValueError("Missing Tag")
+#         if not self.children:
+#             raise ValueError("Missing children")
+#         '''
+#             wrapper Tag
+#             insert into wrapper tag all the children (to_html)
+#             recurse
 
-            tag[nodeA, nodeB, tag[nodeC, nodeD]]
-            -we need to wrap all those iterated on in the tags of the parent
-            -we need
-        '''
-        working_string = f"<{self.tag}{super().props_to_html()}></{self.tag}>"
-        replacement_string = x.to_html() for x in children
+#             tag[nodeA, nodeB, tag[nodeC, nodeD]]
+#             -we need to wrap all those iterated on in the tags of the parent
+#             -we need
+#         '''
+#         working_string = f"<{self.tag}{super().props_to_html()}></{self.tag}>"
+#         replacement_string = x.to_html() for x in children
