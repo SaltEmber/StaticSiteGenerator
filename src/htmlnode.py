@@ -1,4 +1,3 @@
-from dill.pointers import parent
 class HTMLNode:
     def __init__(self, tag = None, value = None, children = None, props = None):
         self.tag = tag
@@ -19,20 +18,21 @@ class LeafNode(HTMLNode):
     def __init__(self, n_tag, n_value, n_props = None):
         super().__init__(n_tag, n_value, props = n_props)
     def to_html(self):
-        if not self.value:
+        if not self.value and not self.value == "":
             raise ValueError
-        if  not self.tag:
+        # Returns raw string if nothing is provided
+        if not self.tag:
             return self.value
         return f"<{self.tag}{super().props_to_html()}>{self.value}</{self.tag}>"
 
-# class ParentNode(HTMLNode):
-#     def __init__(self, tag, children, props = None):
-#         super().__init__(tag, children = children, props = props)
-#     def to_html(self):
-#         if not self.tag:
-#             raise ValueError("Missing Tag")
-#         if not self.children:
-#             raise ValueError("Missing children")
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props = None):
+        super().__init__(tag, children = children, props = props)
+    def to_html(self):
+        if not self.tag:
+            raise ValueError("Missing Tag")
+        if not self.children:
+            raise ValueError("Missing children")
 #         '''
 #             wrapper Tag
 #             insert into wrapper tag all the children (to_html)
@@ -40,7 +40,11 @@ class LeafNode(HTMLNode):
 
 #             tag[nodeA, nodeB, tag[nodeC, nodeD]]
 #             -we need to wrap all those iterated on in the tags of the parent
-#             -we need
+#               -check if the object is a parent (whether we need to make)
 #         '''
-#         working_string = f"<{self.tag}{super().props_to_html()}></{self.tag}>"
-#         replacement_string = x.to_html() for x in children
+        open_tag = f"<{self.tag}{super().props_to_html()}>"
+        end_tag = f"</{self.tag}>"
+        new_tag = open_tag
+        for child in self.children:
+            new_tag += child.to_html()
+        return new_tag + end_tag
