@@ -1,13 +1,15 @@
 import shutil
 import os
 import re
+import sys
 from textnode import TextNode, TextType
 from markdown_blocks import markdown_to_html_node
 
 def main():
-    move_files('static', 'public')
-    generate_page("content/index.md", "template.html", "public/index.html")
-    generate_pages_recursive("content", "template.html", "public")
+    BASEPATH = sys.argv[1] if len(sys.argv) > 1 else "/"
+    
+    move_files('static', 'docs')
+    generate_pages_recursive("content", "template.html", "docs", BASEPATH)
 def move_files(source_path, dest_path):
     '''
         Inputs: 
@@ -19,12 +21,12 @@ def move_files(source_path, dest_path):
         - if the element is not a file, create a new directory in the dest_path then recurse within it
 
     '''
-    if dest_path == 'public':
+    if dest_path == 'docs':
         try:
-            shutil.rmtree('public')
+            shutil.rmtree('docs')
         except:
             pass
-        os.mkdir('public')
+        os.mkdir('docs')
 
     for elem in os.listdir(source_path):
         new_path = f'{source_path}/{elem}'
@@ -41,7 +43,7 @@ def extract_title(markdown):
         raise Exception("There is no heading.")
     return headings 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, BASEPATH):
     # Printing required message
     print(f"Generating page from {from_path} to {dest_path} using template_path")
     # Opening the markdown source file and template file to take their contents as values
@@ -53,13 +55,15 @@ def generate_page(from_path, template_path, dest_path):
     html = markdown_to_html_node(md_file).to_html()
     title = extract_title(md_file)[0]
     new_file = template_file.replace("{{ Title }}", title).replace('{{ Content }}', html)
+    # Set BASEPATH
+    new_file = new_file.replace('href"=/',f'href="{BASEPATH}').replace('src"=/',f'src="{BASEPATH}')
 
     if not os.path.exists(os.path.dirname(dest_path)):
         os.makedirs(os.path.dirname(dest_path))
     
     with open(dest_path, 'w') as file:
         file.write(new_file)
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, BASEPATH):
     '''
         Input:
             -dir_path_content: the path to the source content
@@ -75,10 +79,10 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         elem_path = os.path.join(dir_path_content, elem)
         new_path = os.path.join(dest_dir_path, elem)
         if os.path.isfile(elem_path):
-            generate_page(elem_path, template_path, new_path.rstrip("md") + "html")
+            generate_page(elem_path, template_path, new_path.rstrip("md") + "html", BASEPATH)
             continue
         os.mkdir(os.path.join(dest_dir_path, elem))
-        generate_pages_recursive(elem_path, template_path, new_path)
+        generate_pages_recursive(elem_path, template_path, new_path, BASEPATH)
 
 if __name__ == "__main__":
     main()
