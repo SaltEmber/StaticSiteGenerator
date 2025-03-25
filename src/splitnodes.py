@@ -1,9 +1,7 @@
 from doctest import Example
 from textnode import TextNode, TextType
 import re
-from pydoc import text
-from typing import Type
-import types
+
 
 '''
     return nodes objects split from given nodes with proper TextType
